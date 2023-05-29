@@ -68,12 +68,9 @@ void setup()
 
 void loop()
 {
-  // If we have data, decode and log the data
-  while (gps_serial.available()){
-    if (gps.encode(gps_serial.read())){
-      Serial.println("gps encode");
-      logInfo();
-    }
+  if(gps_serial.available() > 0){
+    gps.encode(gps_serial.read());
+    logInfo();
   }
 }
 
@@ -95,8 +92,9 @@ void logInfo()
   if(!gps.location.isValid())
   {
     digitalWrite(GpsLedPin, HIGH);
-    delay(20);
+    delay(100);
     digitalWrite(GpsLedPin, LOW);
+    delay(100);
     return;
   }
 
