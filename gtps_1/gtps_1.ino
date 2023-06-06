@@ -89,7 +89,7 @@ void logInfo()
 {
   uint8_t day,hour;
   // Wait until we have location locked!
-  if(!gps.location.isValid())
+  if(!gps.location.isUpdated())
   {
     digitalWrite(GpsLedPin, HIGH);
     delay(100);
