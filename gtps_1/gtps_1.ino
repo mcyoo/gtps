@@ -68,10 +68,19 @@ void setup()
 
 void loop()
 {
-  if(gps_serial.available() > 0){
-    gps.encode(gps_serial.read());
-    logInfo();
-  }
+  // If we have data, decode and log the data
+  while (gps_serial.available() > 0)
+    if (gps.encode(gps_serial.read()))
+      logInfo();
+
+  // Test that we have had something from GPS module within first 10 seconds
+  // if (millis() > 10000 && gps.charsProcessed() < 10)
+  // {
+  //   // Set error led
+  //   digitalWrite(GpsLedPin, HIGH);
+  //   // Wiring error so stop trying
+  //   while(true);
+  // }
 }
 
 // Help function to pad 0 prefix when valus < 10
@@ -89,12 +98,12 @@ void logInfo()
 {
   uint8_t day,hour;
   // Wait until we have location locked!
-  if(!gps.location.isUpdated())
+
+  if(!gps.location.isValid())
   {
     digitalWrite(GpsLedPin, HIGH);
-    delay(100);
+    delay(20);
     digitalWrite(GpsLedPin, LOW);
-    delay(100);
     return;
   }
 
@@ -141,10 +150,10 @@ void logInfo()
     dataFile.println();
     dataFile.close();
 
-    Serial.print(gps.location.lat());
+    Serial.print(gps.location.lat(), 6);
     Serial.print("/");
-    Serial.print(gps.location.lng());
-    Serial.println("Success!");
+    Serial.print(gps.location.lng(), 6);
+    Serial.println(" Success!");
     delay(frequency);
   }
   else {
