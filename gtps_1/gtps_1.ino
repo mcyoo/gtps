@@ -97,8 +97,8 @@ void printIntValue(int value)
 void logInfo()
 {
   uint8_t day,hour;
-  // Wait until we have location locked!
 
+  // Wait until we have location locked!
   if(!gps.location.isValid())
   {
     digitalWrite(GpsLedPin, HIGH);
@@ -107,30 +107,22 @@ void logInfo()
     return;
   }
 
+  fileName = "";
+  fileName += gps.date.year();
+  if(gps.date.month() < 10) fileName += "0";
+  fileName += gps.date.month();
+  if(gps.date.day() < 10) fileName += "0";
+  fileName += gps.date.day();
+  fileName += ".txt";
+
   // Write data row (dd.MM.yyyy HH:mm:ss lat,lon)
   dataFile = SD.open(fileName, FILE_WRITE);
-
   if (dataFile) {
     // Show that everything is ok
     digitalWrite(GpsLedPin, LOW);
 
-    // When we first get something to log we take file name from that time
-    fileName = "";
-    fileName += gps.date.year();
-    if(gps.date.month() < 10) fileName += "0";
-    fileName += gps.date.month();
-    if(gps.date.day() < 10) fileName += "0";
-    fileName += gps.date.day();
-    fileName += ".txt";
-
     day = gps.date.day();
     hour = gps.time.hour();
-
-    hour = hour + 9;
-    if (hour > 24){
-        hour = hour - 24;
-        day = day + 1;
-    }
       
     printIntValue(day);
     dataFile.print(F("."));
