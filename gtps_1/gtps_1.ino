@@ -80,7 +80,6 @@ void setup()
 
 void loop()
 {
-  Serial.println(count);
   if(count == max_count)
   {
     count = 0;
