@@ -24,15 +24,21 @@
 #include <SoftwareSerial.h>
 #include <SPI.h>
 #include <SD.h>
+#include <LowPower.h>
 
 // Pins used for communicating with GPS module
 static const int RXPin = 4, TXPin = 3;
 // Status led
 static const int GpsLedPin = 9;
+static const int PowerPin = 8;
 // Baud rate of your GPS module (usually 4800 or 9600)
 static const uint32_t GPSBaud = 9600;
 // How frequently should we save current location (milliseconds)
-static const unsigned long frequency = 5000;
+static const unsigned long frequency = 1000;
+
+int count = 0;
+static const int max_count = 10;
+bool setup_complete = false;
 
 // gps object
 TinyGPSPlus gps;
@@ -51,36 +57,57 @@ void setup()
 {
   gps_serial.begin(GPSBaud);
   Serial.begin(9600);
+  
   pinMode(GpsLedPin, OUTPUT);
   digitalWrite(GpsLedPin, LOW);
 
+  pinMode(PowerPin, OUTPUT);
+  digitalWrite(PowerPin, HIGH);
+
   while(1){
-    if (SD.begin(10)) { //SD card SX-10 
+    if (SD.begin(10))
+    { //SD card SX-10 
       Serial.println("SD card Success..");
       digitalWrite(GpsLedPin, LOW);
+      setup_complete = true;
       break;
     }
     Serial.println("SD card Fail...");
     digitalWrite(GpsLedPin, HIGH);
-    delay(5000);
+    delay(1000);
   }
 }
 
 void loop()
 {
-  // If we have data, decode and log the data
-  while (gps_serial.available() > 0)
-    if (gps.encode(gps_serial.read()))
-      logInfo();
-
-  // Test that we have had something from GPS module within first 10 seconds
-  // if (millis() > 10000 && gps.charsProcessed() < 10)
-  // {
-  //   // Set error led
-  //   digitalWrite(GpsLedPin, HIGH);
-  //   // Wiring error so stop trying
-  //   while(true);
-  // }
+  Serial.println(count);
+  if(count == max_count)
+  {
+    count = 0;
+    setup_complete = false;
+    // down
+    digitalWrite(PowerPin, LOW);
+    delay(1000);
+    for (int i = 0; i < 450; i++) // 10800
+    {
+      LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
+    }
+  }
+  else
+  {
+    if(!setup_complete)
+    {
+      setup();
+    }
+    // If we have data, decode and log the data
+    while (gps_serial.available() > 0 && count < max_count)
+    {
+      if (gps.encode(gps_serial.read()))
+      {
+        logInfo();
+      }
+    }
+  }
 }
 
 // Help function to pad 0 prefix when valus < 10
@@ -147,6 +174,8 @@ void logInfo()
     Serial.print(gps.location.lng(), 6);
     Serial.println(" Success!");
     delay(frequency);
+
+    count++;
   }
   else {
     Serial.println("Fail...");
