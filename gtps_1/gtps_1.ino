@@ -87,7 +87,7 @@ void loop()
     // down
     digitalWrite(PowerPin, LOW);
     delay(1000);
-    for (int i = 0; i < 450; i++) // 10800
+    for (int i = 0; i < 2; i++) // 10800
     {
       LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
     }
@@ -177,6 +177,8 @@ void logInfo()
     count++;
   }
   else {
+    digitalWrite(GpsLedPin, HIGH);
+    
     Serial.println("Fail...");
   }
 }
