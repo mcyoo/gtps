@@ -34,7 +34,7 @@ static const int PowerPin = 8;
 // Baud rate of your GPS module (usually 4800 or 9600)
 static const uint32_t GPSBaud = 9600;
 // How frequently should we save current location (milliseconds)
-static const unsigned long frequency = 1000;
+static const unsigned long frequency = 5000;
 
 int count = 0;
 static const int max_count = 10;
@@ -87,7 +87,7 @@ void loop()
     // down
     digitalWrite(PowerPin, LOW);
     delay(1000);
-    for (int i = 0; i < 2; i++) // 10800
+    for (int i = 0; i < 10800; i++) // 10800
     {
       LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
     }
@@ -130,6 +130,7 @@ void logInfo()
     digitalWrite(GpsLedPin, HIGH);
     delay(20);
     digitalWrite(GpsLedPin, LOW);
+    delay(20);
     return;
   }
 
@@ -172,13 +173,12 @@ void logInfo()
     Serial.print("/");
     Serial.print(gps.location.lng(), 6);
     Serial.println(" Success!");
-    delay(frequency);
 
     count++;
   }
   else {
     digitalWrite(GpsLedPin, HIGH);
-    
-    Serial.println("Fail...");
+    Serial.println("SD Write Fail...");
   }
+  delay(frequency);
 }
