@@ -146,9 +146,9 @@ void logInfo()
     Serial.print("/");
     Serial.print(gps.location.lng(), 6);
     Serial.println(" Success!");
-    delay(frequency);
   }
   else {
     Serial.println("Fail...");
   }
+  delay(frequency);
 }
