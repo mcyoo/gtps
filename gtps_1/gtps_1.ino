@@ -32,7 +32,7 @@ static const int GpsLedPin = 9;
 // Baud rate of your GPS module (usually 4800 or 9600)
 static const uint32_t GPSBaud = 9600;
 // How frequently should we save current location (milliseconds)
-static const unsigned long frequency = 5000;
+static const unsigned long frequency = 3000;
 
 // gps object
 TinyGPSPlus gps;
@@ -62,7 +62,9 @@ void setup()
     }
     Serial.println("SD card Fail...");
     digitalWrite(GpsLedPin, HIGH);
-    delay(5000);
+    delay(frequency);
+    digitalWrite(GpsLedPin, LOW);
+    delay(1000);
   }
 }
 
@@ -101,9 +103,14 @@ void logInfo()
   // Wait until we have location locked!
   if(!gps.location.isValid())
   {
-    digitalWrite(GpsLedPin, HIGH);
-    delay(20);
-    digitalWrite(GpsLedPin, LOW);
+    for(int i=0; i < 3; i++)
+    {
+      digitalWrite(GpsLedPin, HIGH);
+      delay(100);
+      digitalWrite(GpsLedPin, LOW);
+      delay(100);
+    }
+    delay(frequency);
     return;
   }
 
